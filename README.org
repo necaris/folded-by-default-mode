@@ -1,0 +1,38 @@
+* =folded-by-default-mode=
+
+A minor mode to open files with function (or method) bodies folded by default. Inspired by [[https://matklad.github.io/2024/10/14/missing-ide-feature.html][@matklad's blog post]].
+
+** Help sought!
+
+This has only rudimentary tests, run by loading sample files from GitHub from open-source projects in each of a dozen popular languages (see =test/= directory).
+
+I am not an expert in each of these languages, and do not know what is idiomatic -- if I have missed common patterns, please let me know!
+
+This needs to integrate more smoothly with Doom Emacs' folding, too.
+
+There are lots of **TODO** comments left in the code, too ;-)
+
+* Installation
+
+#+begin_src emacs-lisp
+(straight-use-package)
+#+end_src
+
+* Usage
+
+#+begin_src emacs-lisp
+(use-package)
+#+end_src
+
+* Next Steps
+
+- [ ] Fill out README, including methodology for test files
+- [ ] Publish to:
+  - [ ] GitHub
+  - [ ] MELPA
+- [0/2] Implement alternative methods:
+  - [ ] hideshow
+  - [ ] =treesit=
+- [ ] Make it work nicely with Doom's folding
+- [ ] Blog post?
+- [ ] PR to Helix?
