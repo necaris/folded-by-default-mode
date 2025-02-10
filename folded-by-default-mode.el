@@ -1,5 +1,13 @@
-;;; folded-by-default-mode --- Minor mode in which files open with function bodies folded.
-;;;
+;;; folded-by-default-mode.el --- Minor mode in which files open with function bodies folded -*- lexical-binding: t; -*-
+
+;; Copyright (C) 2025 Rami Chowdhury
+
+;; Author: Rami Chowdhury <rami.chowdhury@gmail.com>
+;; Version: 0.1
+;; Package-Requires: ((emacs "26.1"))
+;; Keywords: files, convenience, tools
+;; URL: https://github.com/necaris/folded-by-default-mode
+
 ;;; Commentary:
 ;;;
 ;;; See @matklad's post about the missing IDE feature[1] -- where new file-visiting buffers
@@ -13,8 +21,7 @@
 ;;;
 ;;; Code:
 
-
-(defgroup folded-by-default-mode nil
+(defgroup folded-by-default nil
   "Folding code by default."
   :group 'tree-sitter
   :prefix "folded-by-default-mode-")
@@ -27,7 +34,7 @@
 
 (defun folded-by-default-mode--ts-debug (node)
   "Helper: print out debugging information about NODE."
-  (message "f-b-d-m: type %S, parent-types %s, alist-p %S, func %S"
+  (message "folded-by-default: type %S, parent-types %s, alist-p %S, func %S"
            (tsc-node-type node)
            (folded-by-default-mode--ts-node-parent-types node 3)
            (not (not (alist-get major-mode ts-fold-range-alist)))
@@ -56,13 +63,13 @@ This is essentially a copy of `+fold/close'."
   "Fold regions (from BEG to END) with `outline-mode'.  Ignore TS-NODE."
   (save-excursion
     (goto-char beg)
-    (outline-flag-region (pos-eol) (- end 1) t)))
+    (outline-flag-region (line-end-position) (- end 1) t)))
 
 (defun folded-by-default-mode--hs-fold-func (beg end &optional ts-node)
   "Fold regions (from BEG to END) with `hs-minor-mode'.  Ignore TS-NODE."
   (save-excursion
     (goto-char beg)
-    (hs-make-overlay (pos-eol) (- end 1) 'code)))
+    (hs-make-overlay (line-end-position) (- end 1) 'code)))
 
 (defvar folded-by-default-mode--fold-func
   (cond ((and (featurep 'doom)
@@ -160,7 +167,7 @@ This is essentially a copy of `+fold/close'."
   :init-value nil
   :interactive nil
   :lighter "\uf003"
-  (cond ((fboundp 'ts-fold-mode)
+  (cond ((featurep 'ts-fold)
          (require 'tree-sitter)
          (tree-sitter--handle-dependent folded-by-default-mode
            #'folded-by-default-mode--ts-activate
@@ -180,3 +187,4 @@ This is essentially a copy of `+fold/close'."
 
 (provide 'folded-by-default-mode)
 ;;; folded-by-default-mode.el ends here
+

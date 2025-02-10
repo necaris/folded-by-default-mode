@@ -4,35 +4,41 @@ A minor mode to open files with function (or method) bodies folded by default. I
 
 ** Help sought!
 
-This has only rudimentary tests, run by loading sample files from GitHub from open-source projects in each of a dozen popular languages (see =test/= directory).
+This has only rudimentary tests, run by loading sample files from GitHub from open-source projects in each of a dozen popular languages (see =test/= directory). I am not an expert in each of these languages, and do not know what is idiomatic -- if I have missed common patterns, please let me know!
 
-I am not an expert in each of these languages, and do not know what is idiomatic -- if I have missed common patterns, please let me know!
+Currently, this only implements code folding using =tree-sitter-mode= from MELPA.
 
-This needs to integrate more smoothly with Doom Emacs' folding, too.
-
-There are lots of **TODO** comments left in the code, too ;-)
+There are lots of *TODO* comments left in the code, too ;-)
 
 * Installation
 
+With [[https://github.com/doomemacs/doomemacs][Doom Emacs]]:
 #+begin_src emacs-lisp
-(straight-use-package)
+(package! folded-by-default-mode :recipe (:host github :repo "necaris/folded-by-default-mode"))
+#+end_src
+
+Using [[https://github.com/radian-software/straight.el][=straight.el=]]:
+#+begin_src emacs-lisp
+(straight-use-package
+  '(folded-by-default-mode :host github
+                           :repo "necaris/folded-by-default-mode"
+                           :branch "main"))
 #+end_src
 
 * Usage
 
 #+begin_src emacs-lisp
-(use-package)
+(use-package! folded-by-default-mode
+  :defer t
+  :config
+  (setq-default global-folded-by-default-mode t))
 #+end_src
 
 * Next Steps
 
-- [ ] Fill out README, including methodology for test files
-- [ ] Publish to:
-  - [ ] GitHub
-  - [ ] MELPA
+- [ ] Publish to MELPA
 - [0/2] Implement alternative methods:
+  - [ ] Emacs 29+ native =treesit=
   - [ ] hideshow
-  - [ ] =treesit=
-- [ ] Make it work nicely with Doom's folding
-- [ ] Blog post?
-- [ ] PR to Helix?
+  - [ ] outline
+- [ ] Port to [[https://helix-editor.com][Helix]]?
