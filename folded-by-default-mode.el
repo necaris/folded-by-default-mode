@@ -4,7 +4,7 @@
 
 ;; Author: Rami Chowdhury <rami.chowdhury@gmail.com>
 ;; Version: 0.1
-;; Package-Requires: ((emacs "26.1"))
+;; Package-Requires: ((emacs "26.1") (tree-sitter "0.15.0"))
 ;; Keywords: files, convenience, tools
 ;; URL: https://github.com/necaris/folded-by-default-mode
 
@@ -20,6 +20,10 @@
 ;;; 2: https://github.com/emacs-tree-sitter/ts-fold/
 ;;;
 ;;; Code:
+
+;; TODO: See note below, remove this as soon as we implement other backends
+(require 'tree-sitter)
+(require 'generator)
 
 (defgroup folded-by-default nil
   "Folding code by default."
@@ -73,7 +77,10 @@ This is essentially a copy of `+fold/close'."
 
 (defvar folded-by-default-mode--fold-func
   (cond ((and (featurep 'doom)
-              (modulep! :editor fold))
+              ;; TODO: Is there a more robust way to check for Doom features
+              ;; outside of Doom itself?
+              (bound-and-true-p doom-modules)
+              (gethash '(:editor . fold) doom-modules))
          #'folded-by-default-mode--doom-fold-func)
         ((and (bound-and-true-p tree-sitter-mode)
               (featurep 'ts-fold))
@@ -136,7 +143,7 @@ This is essentially a copy of `+fold/close'."
       ;; TODO: The `emacs-tree-sitter' docs point out that using nodes directly
       ;; puts lots of pressure on the garbage collector. Can we mitigate this
       ;; by setting `gc-cons-threshold' before & after this iteration?
-      (ts-fold-close node))))
+      (funcall folded-by-default-mode--fold-func (tsc-node-start-byte node) (tsc-node-end-byte node) node))))
 
 (defun folded-by-default-mode--outline-do-fold ()
   "Using Emacs' built-in `outline', fold subtrees that should be folded by default."
@@ -163,22 +170,17 @@ This is essentially a copy of `+fold/close'."
 
 ;;;###autoload
 (define-minor-mode folded-by-default-mode
-  "If enabled, new files open with function / method bodies folded by default."
-  :init-value nil
-  :interactive nil
-  :lighter "\uf003"
-  (cond ((featurep 'ts-fold)
-         (require 'tree-sitter)
-         (tree-sitter--handle-dependent folded-by-default-mode
-           #'folded-by-default-mode--ts-activate
-           #'folded-by-default-mode--ts-deactivate))
-        ;; TODO: Implement hideshow supporting functionality
-        ;; ((fboundp 'hs-minor-mode)
-        ;;  (if folded-by-default-mode
-        ;;      (folded-by-default-mode--hideshow-activate)
-        ;;    (folded-by-default-mode--hideshow-activate)))
-        (t (error "Cannot activate folded-by-default-mode, dependencies not present"))))
+   "If enabled, new files open with function / method bodies folded by default."
+   :init-value nil
+   :interactive nil
+   :lighter "Fold-By-Default"
+   ;; TODO: For now, we only know how to use `tree-sitter', but when we support
+   ;; other methods we should update this.
+   (tree-sitter--handle-dependent folded-by-default-mode
+             #'folded-by-default-mode--ts-activate
+             #'folded-by-default-mode--ts-deactivate))
 
+;;;###autoload
 (define-globalized-minor-mode
   global-folded-by-default-mode
   folded-by-default-mode
@@ -187,4 +189,3 @@ This is essentially a copy of `+fold/close'."
 
 (provide 'folded-by-default-mode)
 ;;; folded-by-default-mode.el ends here
-
